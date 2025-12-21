@@ -1,0 +1,204 @@
+no-permission:
+  - '&6&lКЛАНЫ &8| &fУ вас нет прав!'
+only-players:
+  - '&cТолько игроки могут использовать эту команду.'
+no-clan-help:
+  - '&6&lКЛАНЫ &8| &fСтоимость клана: &c500,000&f монет'
+  - ''
+  - '&7/clan create [название клан] &f- создать клан'
+  - '&7/clan accept &f- принять приглашение в клан'
+  - '&7/clan deny &f- отклонить приглашение в клан'
+  - ''
+yes-clan-help-usage:
+  - '&6&lКЛАНЫ &8| &fВаша роль в клане: %role%'
+  - '&6&lКЛАНЫ &8| &fПвп в клане: %clan_pvp%'
+  - ''
+  - ' &7/clan top &f- топ 10 кланов сервера'
+  - ' &7/clan delete &f- распустить клан'
+  - ' &7/clan help &f- подробнее о клане'
+  - ''
+  - '&fОнлайн клана: &e%clan_online%&8/&c100'
+clan-created-broadcast:
+  - '&6&lКЛАНЫ &8| &fИгрок &e%player% &fсоздал клан - %clan%&7!'
+in-clan-help:
+  - '&6&lКЛАНЫ &8| &fПомощь по команде:'
+  - ''
+  - ' &7/clan top &f- топ 10 кланов'
+  - ' &7/clan withdraw [сумма] &f- снять деньги с банка'
+  - ' &7/clan deposit [сумма] &f- внести деньги в банк'
+  - ' &7/clan money &f- посмотреть баланс клана'
+  - ' &7/clan shop &f- открыть магазин клана (с 3 уровня)'
+  - ' &7/clan upgrade &f- информация о прогрессе'
+  - ' &7/clan info &f- информация о клане'
+  - ' &7/clan chest &f- доступ к хранилищу'
+  - ' &7/clan invite [никнейм] &f- пригласить игрока'
+  - ' &7/clan delete &f- удалить клан'
+  - ' &7/clan kick [никнейм] &f- кикнуть игрока из клана'
+  - ' &7/clan addmoder [никнейм] &f- выдать роль модератора'
+  - ' &7/clan removemoder [никнейм] &f- убрать роль модератора'
+  - ' &7/clan msg [сообщение] &f- отправить сообщение в клан'
+  - ' &7/clan sethome &f- установить клановый дом'
+  - ' &7/clan delhome &f- удалить клановый дом'
+  - ' &7/clan home &f- телепортироваться к клановому дому'
+  - ' &7/clan leader [никнейм] &f- передать лидерство'
+  - ' &7/clan pvp &f- включить/выключить пвп в клане'
+  - ''
+already-in-clan:
+  - '&6&lКЛАНЫ &8| &fВы уже состоите в клане.'
+create-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan create [название-клана] &f- создать клан'
+clan-exists:
+  - '&6&lКЛАНЫ &8| &fКлан с таким названием уже существует.'
+create-cost:
+  - '&6&lКЛАНЫ &8| &fДля создания клана требуется &c500,000&f монет.'
+clan-created:
+  - '&6&lКЛАНЫ &8| &fКлан %clan%&f успешно создан.'
+not-in-clan:
+  - '&6&lКЛАНЫ &8| &fВы не состоите в клане.'
+create-name-too-long:
+  - '&6&lКЛАНЫ &8| &fНазвание клана слишком длинное. Максимум 16 символов.'
+deposit-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan deposit [сумма] &f- закинуть деньги в клан'
+invalid-amount:
+  - '&6&lКЛАНЫ &8| &fНеверная сумма.'
+amount-positive:
+  - '&6&lКЛАНЫ &8| &fСумма должна быть положительной.'
+insufficient-funds:
+  - '&6&lКЛАНЫ &8| &fНедостаточно средств.'
+deposited:
+  - '&6&lКЛАНЫ &8| &fВнесено &c%amount%&f в банк клана.'
+shop-level:
+  - '&6&lКЛАНЫ &8| &fМагазин клана доступен с 3 уровня.'
+money-info:
+  - '&6&lКЛАНЫ &8| &fБаланс клана: &c%balance%'
+kick-owner:
+  - '&6&lКЛАНЫ &8| &fВы не можете кикнуть лидера клана.'
+addmoder-owner:
+  - '&6&lКЛАНЫ &8| &fВы не можете выдать лидеру такую роль'
+max-level:
+  - '&6&lКЛАНЫ &8| &fКлан достиг максимального уровня (10).'
+admin-log-on:
+  - '&6&lКЛАНЫ &8| &fлогирование включено'
+admin-log-off:
+  - '&6&lКЛАНЫ &8| &fлогирование выключено'
+upgrade-progress:
+  - '&6&lКЛАНЫ &8| &fПрогресс до уровня &#F8AB00%next%:'
+  - ''
+  - ' &fУбийства: &#F8003C%kills% &8/ &#F8003C%need_kills%'
+  - ' &fВнесено: &#00A8F8%deposited% &8/ &#00A8F8%need_coins%'
+  - ''
+clan-not-found:
+  - '&6&lКЛАНЫ &8| &fКлан не найден.'
+no-invite:
+  - '&6&lКЛАНЫ &8| &fУ вас нет приглашения.'
+invite-denied:
+  - '&6&lКЛАНЫ &8| &fПриглашение отклонено.'
+joined-clan:
+  - '&6&lКЛАНЫ &8| &fВы присоединились к клану %clan%.'
+unknown-command:
+  - '&6&lКЛАНЫ &8| &fНеизвестная подкоманда.'
+insufficient-bank:
+  - '&6&lКЛАНЫ &8| &fНедостаточно средств в банке клана.'
+purchased:
+  - '&6&lКЛАНЫ &8| &fКуплено &6%item%&f за &c%cost%&f из банка клана.'
+invite-sent:
+  - '&6&lКЛАНЫ &8| &fПриглашение отправлено игроку &6%player%&f.'
+invite-received:
+  - '&6&lVex&a&lRise &8| &fВы приглашены в клан %clan% &fигроком &6%owner%'
+reload:
+  - '&6&lКЛАНЫ &8| &fКонфигурация перезагружена.'
+invite-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan invite [никнейм] &f- пригласить игрока в
+  клан'
+player-offline:
+  - '&6&lКЛАНЫ &8| &fИгрок не в сети.'
+player-in-clan:
+  - '&6&lКЛАНЫ &8| &fИгрок уже в клане.'
+vault-not-found:
+  - '&cVault dependency not found or no economy plugin enabled!'
+max-level-upgrade:
+  - '&6&lКЛАНЫ &8| &fКлан %clan%f достиг уровня &6%level%&f!'
+clan-info:
+  - '&6&lКЛАНЫ &8| &fВаш клан&8: &f%name%'
+  - '&6&lКЛАНЫ &8| &fВладелец&8: &a%owner%'
+  - ''
+  - ' &fУчастники: &e%members%'
+  - ' &fМодераторы: &c%moderators%'
+  - ' &fБаланс клана: &6%bank%'
+  - ' &fКиллы: &7%kills% &6&l⚔'
+  - ' &fУровень клана: &#00BCF8%level%'
+  - ''
+chest-title:
+  - '&c&lКлановый сундук - %clan%'
+admin-addlevel-usage:
+  - /clanadmin addlevel <название> <уровень>
+admin-clan-not-found:
+  - '&6&lКЛАНЫ &8| &fКлан не найден.'
+admin-invalid-level:
+  - '&cНеверный уровень. Уровень должен быть от 1 до 10.'
+admin-level-set:
+  - '&aУровень клана %clan% установлен на %level%.'
+admin-no-permission:
+  - '&cУ вас нет прав на использование этой команды.'
+delete-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan delete &f- удалить клан'
+not-leader:
+  - '&6&lКЛАНЫ &8| &fТолько лидер клана может выполнить это действие.'
+clan-deleted:
+  - '&6&lКЛАНЫ &8| &fКлан %clan%&f удален.'
+kick-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan kick [никнейм] &f- кикнуть участника клана'
+player-not-in-clan:
+  - '&6&lКЛАНЫ &8| &fИгрок не состоит в вашем клане.'
+player-kicked:
+  - '&6&lКЛАНЫ &8| &fИгрок &6%player%&f кикнут из клана %clan%&f.'
+player-left:
+  - '&6&lКЛАНЫ &8| &fИгрок &6%player%&f покинул клан %clan%&f.'
+addmoder-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan addmoder [никнейм] &f- повышает участника
+  клана до модератора'
+player-already-moder:
+  - '&6&lКЛАНЫ &8| &fИгрок уже является модератором.'
+moder-added:
+  - '&6&lКЛАНЫ &8| &fИгрок &6%player%&f назначен модератором.'
+removemoder-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan removemoder [никнейм] &f- понижает участника
+  клана до участника'
+player-not-moder:
+  - '&6&lКЛАНЫ &8| &fИгрок не является модератором.'
+moder-removed:
+  - '&6&lКЛАНЫ &8| &fУ игрока &6%player%&f убрана роль модератора.'
+msg-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan msg [сообщение] &f- Отправить сообщение в
+  клан'
+clan-message:
+  - '&6&lКЛАНЫ &8| &fКлан-чат %role% &6%player%&8: &f%message%'
+sethome-success:
+  - '&6&lКЛАНЫ &8| &fКлановый дом установлен.'
+delhome-success:
+  - '&6&lКЛАНЫ &8| &fКлановый дом удален.'
+no-home:
+  - '&6&lКЛАНЫ &8| &fКлановый дом не установлен.'
+home-teleport:
+  - '&6&lКЛАНЫ &8| &fТелепортирован к клановому дому.'
+leader-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan leader [никнейм] &f- передать лидерство участнику
+  клана'
+player-not-member:
+  - '&6&lКЛАНЫ &8| &fИгрок не является участником клана.'
+leader-transferred:
+  - '&6&lКЛАНЫ &8| &fЛидерство передано игроку &6%player%&f.'
+pvp-enabled:
+  - '&6&lКЛАНЫ &8| &fПвп в клане включено.'
+pvp-disabled:
+  - '&6&lКЛАНЫ &8| &fПвп в клане выключено.'
+withdraw-usage:
+  - '%CORE_SPIGOT:SERVER:INFO% &8| &7/clan withdraw [сумма] &f- снять деньги с клана'
+withdrawn:
+  - '&6&lКЛАНЫ &8| &fСнято &c%amount%&f из банка клана.'
+top-clans-title:
+  - '&6&lКЛАНЫ &8| &fТоп 10 кланов сервера:'
+  - ''
+top-clan-format:
+  - '&f[#&#00FFE0%rank%&f] &fКлан: %name%&7, &fВладелец: &#F80000%owner%&7, &fУчастников:
+  &e%members%'

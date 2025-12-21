@@ -1,0 +1,12 @@
+name: ClanSystem
+version: '1.0'
+main: org.ghost.clansystem.ClanSystem
+api-version: '1.16'
+depend: [ProtocolLib, Vault, PlaceholderAPI]
+commands:
+  clan:
+  clanadmin:
+    permission: clan.admin
+permissions:
+  clan.admin:
+    default: op
