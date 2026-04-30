@@ -288,6 +288,10 @@ public class ClanListener implements Listener {
         org.ghost.clansystem.managers.ClanManager.QuestDef def = plugin.getClanManager().getQuestById(questId);
         if (def == null) return;
         long progress = plugin.getClanManager().getQuestProgress(clan, def.id);
+        if (progress < 0) {
+            player.sendMessage(plugin.getConfigManager().getSingleMessage("menu-quest-already-claimed"));
+            return;
+        }
         if ("grow".equals(def.id)) {
             int members = plugin.getClanManager().getClanMembers(clan).size();
             progress = Math.min(members, def.target);
@@ -297,12 +301,14 @@ public class ClanListener implements Listener {
             return;
         }
         applyQuestReward(clan, def);
-        if (!"grow".equals(def.id)) {
+        if ("grow".equals(def.id)) {
+            plugin.getClanManager().setQuestProgress(clan, def.id, -1L);
+        } else {
             plugin.getClanManager().resetQuestProgress(clan, def.id);
         }
-        player.sendMessage(plugin.getConfigManager().getSingleMessage("menu-quest-claimed",
+        plugin.getConfigManager().sendList(player, "menu-quest-claimed",
                 "%quest%", plugin.getConfigManager().getSingleMessage(def.nameKey),
-                "%reward%", formatRewardPlain(def.rewardType, def.rewardAmount)));
+                "%reward%", formatRewardPlain(def.rewardType, def.rewardAmount));
         Bukkit.getScheduler().runTask(plugin, () -> plugin.getGuiManager().openMainMenu(player, clan));
     }
 

@@ -366,6 +366,11 @@ menu-quest-claim-lore:
   - ''
   - ' &a&lЗадание выполнено!'
   - ' &eНажмите чтобы забрать награду'
+menu-quest-already-claimed-lore:
+  - ''
+  - ' &7Награда уже получена.'
+menu-quest-already-claimed:
+  - '&6&lКЛАНЫ &8| &fНаграда за это задание уже получена.'
 menu-quest-not-ready:
   - '&6&lКЛАНЫ &8| &fЭто задание ещё не выполнено.'
 menu-quest-claimed:

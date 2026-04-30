@@ -369,6 +369,10 @@ public class ConfigManager {
                 "",
                 " &a&lЗадание выполнено!",
                 " &eНажмите чтобы забрать награду"));
+        setMsg("menu-quest-already-claimed-lore", Arrays.asList(
+                "",
+                " &7Награда уже получена."));
+        setMsg("menu-quest-already-claimed", Arrays.asList("&6&lКЛАНЫ &8| &fНаграда за это задание уже получена."));
         setMsg("menu-quest-not-ready", Arrays.asList("&6&lКЛАНЫ &8| &fЭто задание ещё не выполнено."));
         setMsg("menu-quest-claimed", Arrays.asList(
                 "&6&lКЛАНЫ &8| &aВыполнено: &e%quest%",

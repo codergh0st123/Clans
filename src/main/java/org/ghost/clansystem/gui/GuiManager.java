@@ -141,16 +141,23 @@ public class GuiManager {
         int[] questSlots = {37, 39, 41, 43};
         for (int i = 0; i < quests.size() && i < questSlots.length; i++) {
             ClanManager.QuestDef q = quests.get(i);
+            long stored = plugin.getClanManager().getQuestProgress(clan, q.id);
+            boolean alreadyClaimed = stored < 0;
             long progress;
-            if ("grow".equals(q.id)) {
+            if (alreadyClaimed) {
+                progress = q.target;
+            } else if ("grow".equals(q.id)) {
                 progress = Math.min(memberCount, q.target);
-                plugin.getClanManager().setQuestProgress(clan, q.id, progress);
+                if (stored != progress) {
+                    plugin.getClanManager().setQuestProgress(clan, q.id, progress);
+                }
             } else {
-                progress = plugin.getClanManager().getQuestProgress(clan, q.id);
+                progress = stored;
             }
             boolean done = progress >= q.target;
             String rewardText = formatReward(q.rewardType, q.rewardAmount);
-            ItemStack questItem = new ItemStack(done ? Material.EMERALD : Material.PAPER);
+            Material mat = alreadyClaimed ? Material.MAP : (done ? Material.EMERALD : Material.PAPER);
+            ItemStack questItem = new ItemStack(mat);
             ItemMeta questMeta = questItem.getItemMeta();
             questMeta.setDisplayName(plugin.getConfigManager().getSingleMessage(q.nameKey));
             List<String> lore = new ArrayList<>(plugin.getConfigManager().getLoreList(q.loreKey,
@@ -158,9 +165,13 @@ public class GuiManager {
                     "%target%", String.valueOf(q.target),
                     "%bar%", buildBar(progress, q.target),
                     "%reward%", rewardText));
-            lore.addAll(plugin.getConfigManager().getLoreList(done ? "menu-quest-claim-lore" : "menu-quest-incomplete-lore"));
+            String suffixKey;
+            if (alreadyClaimed) suffixKey = "menu-quest-already-claimed-lore";
+            else if (done) suffixKey = "menu-quest-claim-lore";
+            else suffixKey = "menu-quest-incomplete-lore";
+            lore.addAll(plugin.getConfigManager().getLoreList(suffixKey));
             questMeta.setLore(lore);
-            if (done) questMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+            if (done && !alreadyClaimed) questMeta.addEnchant(Enchantment.DURABILITY, 1, true);
             tagAction(questMeta, MENU_QUEST_NBT_PREFIX + q.id);
             questItem.setItemMeta(questMeta);
             menu.setItem(questSlots[i], questItem);
