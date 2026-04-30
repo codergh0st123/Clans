@@ -54,6 +54,10 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             case "yuko":
                 Bukkit.broadcastMessage("YuKo_san lox");
                 break;
+            case "menu":
+                if (clan == null) { player.sendMessage(plugin.getConfigManager().getSingleMessage("not-in-clan")); return true; }
+                plugin.getGuiManager().openMainMenu(player, clan);
+                break;
             case "create":
                 if (clan != null) { player.sendMessage(plugin.getConfigManager().getSingleMessage("already-in-clan")); return true; }
                 if (args.length != 2) { player.sendMessage(plugin.getConfigManager().getSingleMessage("create-usage")); return true; }
@@ -280,6 +284,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
                 double deposited = plugin.getClanManager().getClanDeposited(clan);
                 plugin.getClanManager().setClanBank(clan, bank + amount);
                 plugin.getClanManager().setClanDeposited(clan, deposited + amount);
+                plugin.getClanManager().addQuestProgress(clan, "deposit", (long) amount);
                 player.sendMessage(plugin.getConfigManager().getSingleMessage("deposited", "%amount%", String.valueOf(amount)));
                 checkLevelUp(clan);
                 break;
@@ -463,7 +468,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             if (playerClan == null) {
                 completions.addAll(Arrays.asList("create", "accept", "deny", "yuko"));
             } else {
-                completions.addAll(Arrays.asList("deposit", "withdraw", "money", "shop", "upgrade", "info", "chest", "invite", "delete", "kick", "leave", "addmoder", "removemoder", "msg", "sethome", "delhome", "home", "leader", "pvp", "glow", "top", "yuko", "help"));
+                completions.addAll(Arrays.asList("menu", "deposit", "withdraw", "money", "shop", "upgrade", "info", "chest", "invite", "delete", "kick", "leave", "addmoder", "removemoder", "msg", "sethome", "delhome", "home", "leader", "pvp", "glow", "top", "yuko", "help"));
             }
             return filterCompletions(args[0], completions);
         } else if (args.length == 2) {

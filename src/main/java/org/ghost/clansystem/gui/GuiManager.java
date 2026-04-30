@@ -11,7 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.ghost.clansystem.ClanSystem;
+import org.ghost.clansystem.managers.ClanManager;
 import java.util.*;
 
 public class GuiManager {
@@ -21,6 +25,225 @@ public class GuiManager {
 
     public GuiManager(ClanSystem plugin) {
         this.plugin = plugin;
+    }
+
+    public static final String MENU_QUEST_NBT_PREFIX = "QUEST:";
+
+    public void openMainMenu(Player player, String clan) {
+        String title = plugin.getConfigManager().getSingleMessage("menu-title", "%clan%", clan);
+        Inventory menu = Bukkit.createInventory(null, 54, title);
+
+        ItemStack yellowPane = pane(Material.YELLOW_STAINED_GLASS_PANE);
+        ItemStack orangePane = pane(Material.ORANGE_STAINED_GLASS_PANE);
+
+        int[] yellowSlots = {0, 2, 4, 6, 8, 9, 17, 27, 35, 45, 47, 51, 53};
+        int[] orangeSlots = {1, 3, 5, 7, 18, 26, 36, 44, 46, 52};
+        for (int s : yellowSlots) menu.setItem(s, yellowPane);
+        for (int s : orangeSlots) menu.setItem(s, orangePane);
+
+        int level = plugin.getClanManager().getClanLevel(clan);
+        double bank = plugin.getClanManager().getClanBank(clan);
+        int kills = plugin.getClanManager().getClanKills(clan);
+        double deposited = plugin.getClanManager().getClanDeposited(clan);
+        boolean pvp = plugin.getClanManager().getClanPvp(clan);
+        String ownerUuid = plugin.getClanManager().getClanOwner(clan);
+        String ownerName = "?";
+        if (ownerUuid != null) {
+            String n = Bukkit.getOfflinePlayer(UUID.fromString(ownerUuid)).getName();
+            if (n != null) ownerName = n;
+        }
+        int memberCount = plugin.getClanManager().getClanMembers(clan).size();
+
+        ItemStack banner = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta bannerMeta = (SkullMeta) banner.getItemMeta();
+        if (ownerUuid != null) {
+            bannerMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(ownerUuid)));
+        }
+        bannerMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-banner-name", "%clan%", clan));
+        bannerMeta.setLore(plugin.getConfigManager().getLoreList("menu-banner-lore",
+                "%clan%", clan,
+                "%owner%", ownerName,
+                "%level%", String.valueOf(level),
+                "%bank%", formatNumber(bank),
+                "%kills%", String.valueOf(kills),
+                "%deposited%", formatNumber(deposited),
+                "%members%", String.valueOf(memberCount),
+                "%pvp%", pvp ? "§a§lВкл" : "§c§lВыкл"));
+        banner.setItemMeta(bannerMeta);
+        menu.setItem(13, banner);
+
+        int next = Math.min(level + 1, 10);
+        int needKills = level < 10 ? plugin.getClanManager().KILLS_REQUIRED[next - 1] : plugin.getClanManager().KILLS_REQUIRED[9];
+        int needCoins = level < 10 ? plugin.getClanManager().COINS_REQUIRED[next - 1] : plugin.getClanManager().COINS_REQUIRED[9];
+        String killBar = buildBar(kills, needKills);
+        String coinBar = buildBar((long) deposited, needCoins);
+        ItemStack progressItem = new ItemStack(Material.EXPERIENCE_BOTTLE);
+        ItemMeta progressMeta = progressItem.getItemMeta();
+        progressMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-progress-name", "%level%", String.valueOf(level)));
+        progressMeta.setLore(plugin.getConfigManager().getLoreList(level >= 10 ? "menu-progress-max-lore" : "menu-progress-lore",
+                "%level%", String.valueOf(level),
+                "%next%", String.valueOf(next),
+                "%kills%", String.valueOf(kills),
+                "%need_kills%", String.valueOf(needKills),
+                "%deposited%", formatNumber(deposited),
+                "%need_coins%", formatNumber(needCoins),
+                "%kill_bar%", killBar,
+                "%coin_bar%", coinBar));
+        tagAction(progressMeta, "progress");
+        progressItem.setItemMeta(progressMeta);
+        menu.setItem(20, progressItem);
+
+        ItemStack shopItem = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta shopMeta = shopItem.getItemMeta();
+        shopMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-shop-name"));
+        String shopLoreKey = level >= 3 ? "menu-shop-lore" : "menu-shop-locked-lore";
+        shopMeta.setLore(plugin.getConfigManager().getLoreList(shopLoreKey, "%level%", String.valueOf(level)));
+        tagAction(shopMeta, "shop");
+        shopItem.setItemMeta(shopMeta);
+        menu.setItem(22, shopItem);
+
+        ItemStack chestItem = new ItemStack(Material.CHEST);
+        ItemMeta chestMeta = chestItem.getItemMeta();
+        chestMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-chest-name"));
+        chestMeta.setLore(plugin.getConfigManager().getLoreList("menu-chest-lore",
+                "%slots%", String.valueOf(plugin.getClanManager().CHEST_SLOTS[level - 1])));
+        tagAction(chestMeta, "chest");
+        chestItem.setItemMeta(chestMeta);
+        menu.setItem(24, chestItem);
+
+        ItemStack homeItem = new ItemStack(Material.COMPASS);
+        ItemMeta homeMeta = homeItem.getItemMeta();
+        homeMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-home-name"));
+        homeMeta.setLore(plugin.getConfigManager().getLoreList("menu-home-lore"));
+        tagAction(homeMeta, "home");
+        homeItem.setItemMeta(homeMeta);
+        menu.setItem(29, homeItem);
+
+        ItemStack pvpItem = new ItemStack(pvp ? Material.DIAMOND_SWORD : Material.WOODEN_SWORD);
+        ItemMeta pvpMeta = pvpItem.getItemMeta();
+        pvpMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-pvp-name"));
+        String pvpLoreKey = pvp ? "menu-pvp-on-lore" : "menu-pvp-off-lore";
+        pvpMeta.setLore(plugin.getConfigManager().getLoreList(pvpLoreKey));
+        if (pvp) pvpMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        tagAction(pvpMeta, "pvp");
+        pvpItem.setItemMeta(pvpMeta);
+        menu.setItem(31, pvpItem);
+
+        ItemStack glowItem = new ItemStack(Material.GLOWSTONE_DUST);
+        ItemMeta glowMeta = glowItem.getItemMeta();
+        glowMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-glow-name"));
+        glowMeta.setLore(plugin.getConfigManager().getLoreList("menu-glow-lore"));
+        tagAction(glowMeta, "glow");
+        glowItem.setItemMeta(glowMeta);
+        menu.setItem(33, glowItem);
+
+        List<ClanManager.QuestDef> quests = plugin.getClanManager().QUESTS;
+        int[] questSlots = {37, 39, 41, 43};
+        for (int i = 0; i < quests.size() && i < questSlots.length; i++) {
+            ClanManager.QuestDef q = quests.get(i);
+            long progress;
+            if ("grow".equals(q.id)) {
+                progress = Math.min(memberCount, q.target);
+                plugin.getClanManager().setQuestProgress(clan, q.id, progress);
+            } else {
+                progress = plugin.getClanManager().getQuestProgress(clan, q.id);
+            }
+            boolean done = progress >= q.target;
+            String rewardText = formatReward(q.rewardType, q.rewardAmount);
+            ItemStack questItem = new ItemStack(done ? Material.EMERALD : Material.PAPER);
+            ItemMeta questMeta = questItem.getItemMeta();
+            questMeta.setDisplayName(plugin.getConfigManager().getSingleMessage(q.nameKey));
+            List<String> lore = new ArrayList<>(plugin.getConfigManager().getLoreList(q.loreKey,
+                    "%progress%", String.valueOf(Math.min(progress, q.target)),
+                    "%target%", String.valueOf(q.target),
+                    "%bar%", buildBar(progress, q.target),
+                    "%reward%", rewardText));
+            lore.addAll(plugin.getConfigManager().getLoreList(done ? "menu-quest-claim-lore" : "menu-quest-incomplete-lore"));
+            questMeta.setLore(lore);
+            if (done) questMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+            tagAction(questMeta, MENU_QUEST_NBT_PREFIX + q.id);
+            questItem.setItemMeta(questMeta);
+            menu.setItem(questSlots[i], questItem);
+        }
+
+        ItemStack closeItem = new ItemStack(Material.BARRIER);
+        ItemMeta closeMeta = closeItem.getItemMeta();
+        closeMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-close-name"));
+        closeMeta.setLore(plugin.getConfigManager().getLoreList("menu-close-lore"));
+        tagAction(closeMeta, "close");
+        closeItem.setItemMeta(closeMeta);
+        menu.setItem(49, closeItem);
+
+        ItemStack infoItem = new ItemStack(Material.NETHER_STAR);
+        ItemMeta infoMeta = infoItem.getItemMeta();
+        infoMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-info-name"));
+        infoMeta.setLore(plugin.getConfigManager().getLoreList("menu-info-lore"));
+        tagAction(infoMeta, "info");
+        infoItem.setItemMeta(infoMeta);
+        menu.setItem(48, infoItem);
+
+        ItemStack topItem = new ItemStack(Material.GOLDEN_APPLE);
+        ItemMeta topMeta = topItem.getItemMeta();
+        topMeta.setDisplayName(plugin.getConfigManager().getSingleMessage("menu-top-name"));
+        topMeta.setLore(plugin.getConfigManager().getLoreList("menu-top-lore"));
+        tagAction(topMeta, "top");
+        topItem.setItemMeta(topMeta);
+        menu.setItem(50, topItem);
+
+        player.openInventory(menu);
+    }
+
+    private void tagAction(ItemMeta meta, String action) {
+        NamespacedKey key = new NamespacedKey(plugin, "menu_action");
+        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, action);
+    }
+
+    public static String readActionTag(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return null;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return null;
+        ClanSystem plugin = ClanSystem.getInstance();
+        if (plugin == null) return null;
+        NamespacedKey key = new NamespacedKey(plugin, "menu_action");
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        if (pdc.has(key, PersistentDataType.STRING)) {
+            return pdc.get(key, PersistentDataType.STRING);
+        }
+        return null;
+    }
+
+    private ItemStack pane(Material material) {
+        ItemStack stack = new ItemStack(material);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(" ");
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    private String formatNumber(double value) {
+        if (value >= 1_000_000) return String.format(java.util.Locale.ROOT, "%.1fM", value / 1_000_000.0);
+        if (value >= 1_000) return String.format(java.util.Locale.ROOT, "%.1fk", value / 1_000.0);
+        if (value == Math.floor(value)) return String.valueOf((long) value);
+        return String.format(java.util.Locale.ROOT, "%.2f", value);
+    }
+
+    private String buildBar(long progress, long target) {
+        int total = 20;
+        if (target <= 0) return "§a" + "█".repeat(total);
+        int filled = (int) Math.min(total, Math.max(0, (progress * total) / target));
+        StringBuilder sb = new StringBuilder();
+        sb.append("§6").append("█".repeat(filled));
+        sb.append("§7").append("█".repeat(total - filled));
+        return sb.toString();
+    }
+
+    private String formatReward(String type, long amount) {
+        switch (type) {
+            case "bank": return "§6" + formatNumber(amount) + "§e монет в банк";
+            case "kills": return "§c+" + amount + "§e к убийствам клана";
+            case "deposited": return "§b+" + formatNumber(amount) + "§e к внесённым";
+            default: return amount + " " + type;
+        }
     }
 
     public void openGlowGui(Player player, String clan) {

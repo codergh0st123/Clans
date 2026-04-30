@@ -49,9 +49,17 @@ public class DatabaseManager {
                     "item_data TEXT, " +
                     "FOREIGN KEY(clan_name) REFERENCES clans(name) ON DELETE CASCADE" +
                     ");";
+            String questsTable = "CREATE TABLE IF NOT EXISTS clan_quests (" +
+                    "clan_name TEXT, " +
+                    "quest_id TEXT, " +
+                    "progress INTEGER DEFAULT 0, " +
+                    "PRIMARY KEY (clan_name, quest_id), " +
+                    "FOREIGN KEY(clan_name) REFERENCES clans(name) ON DELETE CASCADE" +
+                    ");";
             connection.createStatement().execute(clansTable);
             connection.createStatement().execute(membersTable);
             connection.createStatement().execute(chestsTable);
+            connection.createStatement().execute(questsTable);
             try {
                 connection.createStatement().execute("ALTER TABLE clan_members ADD COLUMN glow_color INTEGER;");
             } catch (SQLException ignored) {}
