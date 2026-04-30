@@ -539,7 +539,7 @@ public class ClanManager {
             PreparedStatement stmt = plugin.getDatabaseManager().getConnection().prepareStatement(sql);
             stmt.setString(1, clanName);
             stmt.setString(2, questId);
-            stmt.setLong(3, Math.max(0L, value));
+            stmt.setLong(3, value);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -551,7 +551,8 @@ public class ClanManager {
         QuestDef def = getQuestById(questId);
         long cap = def != null ? def.target : Long.MAX_VALUE;
         long current = getQuestProgress(clanName, questId);
-        long next = Math.min(cap, current + delta);
+        if (current < 0) return;
+        long next = Math.min(cap, Math.max(0L, current + delta));
         if (next != current) {
             setQuestProgress(clanName, questId, next);
         }
