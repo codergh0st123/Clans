@@ -21,6 +21,30 @@ public class ClanManager {
     public final int[] COINS_REQUIRED = {0, 5000, 15000, 30000, 50000, 100000, 200000, 350000, 500000, 1000000};
     public final int[] CHEST_SLOTS = {9, 9, 18, 18, 27, 27, 36, 36, 45, 54};
 
+    public static final class QuestDef {
+        public final String id;
+        public final String nameKey;
+        public final String loreKey;
+        public final long target;
+        public final String rewardType;
+        public final long rewardAmount;
+        public QuestDef(String id, String nameKey, String loreKey, long target, String rewardType, long rewardAmount) {
+            this.id = id;
+            this.nameKey = nameKey;
+            this.loreKey = loreKey;
+            this.target = target;
+            this.rewardType = rewardType;
+            this.rewardAmount = rewardAmount;
+        }
+    }
+
+    public final List<QuestDef> QUESTS = Arrays.asList(
+            new QuestDef("kills",   "menu-quest-kills-name",   "menu-quest-kills-lore",   50,     "bank",    50000),
+            new QuestDef("deposit", "menu-quest-deposit-name", "menu-quest-deposit-lore", 250000, "bank",    50000),
+            new QuestDef("pvp",     "menu-quest-pvp-name",     "menu-quest-pvp-lore",     25,     "kills",   10),
+            new QuestDef("grow",    "menu-quest-grow-name",    "menu-quest-grow-lore",    5,      "bank",    25000)
+    );
+
     public ClanManager(ClanSystem plugin) {
         this.plugin = plugin;
         loadClansFromDatabase();
@@ -95,6 +119,11 @@ public class ClanManager {
             PreparedStatement stmt = plugin.getDatabaseManager().getConnection().prepareStatement(sql);
             stmt.setString(1, name);
             stmt.executeUpdate();
+            try (PreparedStatement clean = plugin.getDatabaseManager().getConnection()
+                    .prepareStatement("DELETE FROM clan_quests WHERE clan_name = ?")) {
+                clean.setString(1, name);
+                clean.executeUpdate();
+            }
             for (String memberUuid : members) {
                 UUID uuid = UUID.fromString(memberUuid);
                 playerClanCache.remove(uuid);
@@ -481,6 +510,56 @@ public class ClanManager {
     public Map<UUID, String> getPendingInvites() { return pendingInvites; }
     public Set<UUID> getClanMsgLoggers() { return clanMsgLoggers; }
     public Integer getPlayerGlow(UUID uuid) { return playerGlowCache.get(uuid); }
+
+    public QuestDef getQuestById(String id) {
+        for (QuestDef q : QUESTS) {
+            if (q.id.equals(id)) return q;
+        }
+        return null;
+    }
+
+    public long getQuestProgress(String clanName, String questId) {
+        try {
+            String sql = "SELECT progress FROM clan_quests WHERE clan_name = ? AND quest_id = ?";
+            PreparedStatement stmt = plugin.getDatabaseManager().getConnection().prepareStatement(sql);
+            stmt.setString(1, clanName);
+            stmt.setString(2, questId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getLong("progress");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0L;
+    }
+
+    public void setQuestProgress(String clanName, String questId, long value) {
+        try {
+            String sql = "INSERT INTO clan_quests (clan_name, quest_id, progress) VALUES (?, ?, ?) " +
+                    "ON CONFLICT(clan_name, quest_id) DO UPDATE SET progress = excluded.progress";
+            PreparedStatement stmt = plugin.getDatabaseManager().getConnection().prepareStatement(sql);
+            stmt.setString(1, clanName);
+            stmt.setString(2, questId);
+            stmt.setLong(3, Math.max(0L, value));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addQuestProgress(String clanName, String questId, long delta) {
+        if (clanName == null || delta == 0) return;
+        QuestDef def = getQuestById(questId);
+        long cap = def != null ? def.target : Long.MAX_VALUE;
+        long current = getQuestProgress(clanName, questId);
+        long next = Math.min(cap, current + delta);
+        if (next != current) {
+            setQuestProgress(clanName, questId, next);
+        }
+    }
+
+    public void resetQuestProgress(String clanName, String questId) {
+        setQuestProgress(clanName, questId, 0L);
+    }
 
     private void updateAppearance(Player target) {
         if (target != null && target.isOnline()) {

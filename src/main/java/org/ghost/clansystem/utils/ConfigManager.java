@@ -88,6 +88,22 @@ public class ConfigManager {
         return config.getStringList(key);
     }
 
+    public List<String> getLoreList(String key, String... placeholders) {
+        List<String> raw = config.getStringList(key);
+        List<String> out = new java.util.ArrayList<>(raw.size());
+        for (String line : raw) {
+            String formatted = line;
+            for (int i = 0; i < placeholders.length; i += 2) {
+                formatted = formatted.replace(placeholders[i], placeholders[i + 1]);
+            }
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                formatted = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(null, formatted);
+            }
+            out.add(translateHexColorCodes(formatted));
+        }
+        return out;
+    }
+
     private void createDefaultMessages() {
         setMsg("no-permission", Arrays.asList("&cУ вас нет прав на использование этой команды."));
         setMsg("only-players", Arrays.asList("&cТолько игроки могут использовать эту команду."));
@@ -97,6 +113,7 @@ public class ConfigManager {
                 "&7/clan deny - отклонить приглашение в клан"
         ));
         setMsg("in-clan-help", Arrays.asList(
+                "&7/clan menu - открыть меню клана",
                 "&7/clan deposit <сумма> - внести деньги в банк",
                 "&7/clan withdraw <сумма> - снять деньги с банка",
                 "&7/clan money - посмотреть баланс клана",
@@ -122,6 +139,7 @@ public class ConfigManager {
                 "&7/clan help - список команд клана"
         ));
         setMsg("yes-clan-help-usage", Arrays.asList(
+                "&7/clan menu - открыть меню клана",
                 "&7/clan deposit <сумма> - внести деньги в банк",
                 "&7/clan withdraw <сумма> - снять деньги с банка",
                 "&7/clan money - посмотреть баланс клана",
@@ -254,6 +272,144 @@ public class ConfigManager {
         setMsg("glow-updated", Arrays.asList("&aЦвет свечения обновлен для %player%!"));
         setMsg("glow-selected", Arrays.asList("&eВыбран игрок &6%player%&e. Выберите цвет для установки."));
         setMsg("glow-usage", Arrays.asList("&cИспользование: /clan glow"));
+
+        setMsg("menu-title", Arrays.asList("&#FFA500&lМеню клана &7- &e%clan%"));
+        setMsg("menu-banner-name", Arrays.asList("&#FFA500&lКлан &e%clan%"));
+        setMsg("menu-banner-lore", Arrays.asList(
+                "",
+                " &7Владелец: &6%owner%",
+                " &7Уровень: &#00BCF8%level%",
+                " &7Банк: &6%bank%&e монет",
+                " &7Внесено всего: &b%deposited%",
+                " &7Убийств клана: &c%kills%",
+                " &7Участников: &a%members%",
+                " &7PvP внутри клана: %pvp%",
+                ""));
+        setMsg("menu-info-name", Arrays.asList("&e&lИнформация"));
+        setMsg("menu-info-lore", Arrays.asList(
+                "",
+                " &7Открыть подробное",
+                " &7описание клана в чат",
+                "",
+                " &eНажмите чтобы выполнить"));
+        setMsg("menu-progress-name", Arrays.asList("&#F8AB00&lПрогресс клана &7- &eур. %level%"));
+        setMsg("menu-progress-lore", Arrays.asList(
+                "",
+                " &7Уровень: &#00BCF8%level% &8→ &#00BCF8%next%",
+                "",
+                " &7Убийства: &c%kills%&8/&c%need_kills%",
+                " %kill_bar%",
+                "",
+                " &7Внесено: &b%deposited%&8/&b%need_coins%",
+                " %coin_bar%",
+                "",
+                " &eНажмите чтобы открыть подробности"));
+        setMsg("menu-progress-max-lore", Arrays.asList(
+                "",
+                " &6Клан достиг максимального уровня!",
+                ""));
+        setMsg("menu-shop-name", Arrays.asList("&6&lМагазин клана"));
+        setMsg("menu-shop-lore", Arrays.asList(
+                "",
+                " &7Купите снаряжение за счёт банка клана.",
+                " &7Уровень магазина: &e%level%",
+                "",
+                " &eНажмите чтобы открыть магазин"));
+        setMsg("menu-shop-locked-lore", Arrays.asList(
+                "",
+                " &cМагазин доступен с &e3 &cуровня.",
+                " &7Текущий уровень: &e%level%",
+                ""));
+        setMsg("menu-chest-name", Arrays.asList("&#C68A2C&lХранилище клана"));
+        setMsg("menu-chest-lore", Arrays.asList(
+                "",
+                " &7Слотов: &e%slots%",
+                "",
+                " &eНажмите чтобы открыть хранилище"));
+        setMsg("menu-home-name", Arrays.asList("&b&lДом клана"));
+        setMsg("menu-home-lore", Arrays.asList(
+                "",
+                " &7Телепортироваться к точке клана.",
+                "",
+                " &eНажмите чтобы телепортироваться"));
+        setMsg("menu-pvp-name", Arrays.asList("&c&lPvP внутри клана"));
+        setMsg("menu-pvp-on-lore", Arrays.asList(
+                "",
+                " &aСейчас включено",
+                "",
+                " &eНажмите чтобы выключить"));
+        setMsg("menu-pvp-off-lore", Arrays.asList(
+                "",
+                " &cСейчас выключено",
+                "",
+                " &eНажмите чтобы включить"));
+        setMsg("menu-glow-name", Arrays.asList("&d&lСвечение брони"));
+        setMsg("menu-glow-lore", Arrays.asList(
+                "",
+                " &7Выбрать цвет свечения для участников.",
+                "",
+                " &eНажмите чтобы открыть меню свечений"));
+        setMsg("menu-top-name", Arrays.asList("&6&lТоп кланов"));
+        setMsg("menu-top-lore", Arrays.asList(
+                "",
+                " &7Посмотреть топ 10 кланов сервера",
+                "",
+                " &eНажмите чтобы выполнить"));
+        setMsg("menu-close-name", Arrays.asList("&c&lЗакрыть"));
+        setMsg("menu-close-lore", Arrays.asList(
+                "",
+                " &7Закрыть меню клана",
+                ""));
+
+        setMsg("menu-quest-incomplete-lore", Arrays.asList(
+                "",
+                " &7Завершите задание чтобы получить",
+                " &7награду в банк клана."));
+        setMsg("menu-quest-claim-lore", Arrays.asList(
+                "",
+                " &a&lЗадание выполнено!",
+                " &eНажмите чтобы забрать награду"));
+        setMsg("menu-quest-not-ready", Arrays.asList("&6&lКЛАНЫ &8| &fЭто задание ещё не выполнено."));
+        setMsg("menu-quest-claimed", Arrays.asList(
+                "&6&lКЛАНЫ &8| &aВыполнено: &e%quest%",
+                "&6&lКЛАНЫ &8| &fНаграда: &6%reward%"));
+        setMsg("menu-quest-kills-name", Arrays.asList("&c&l⚔ Убийства"));
+        setMsg("menu-quest-kills-lore", Arrays.asList(
+                "",
+                " &7Совершите &c%target% убийств&7 от клана.",
+                "",
+                " &7Прогресс: &c%progress%&8/&c%target%",
+                " %bar%",
+                "",
+                " &7Награда: %reward%"));
+        setMsg("menu-quest-deposit-name", Arrays.asList("&6&l☼ Богатый клан"));
+        setMsg("menu-quest-deposit-lore", Arrays.asList(
+                "",
+                " &7Внесите &6%target% монет&7 в банк клана.",
+                "",
+                " &7Прогресс: &6%progress%&8/&6%target%",
+                " %bar%",
+                "",
+                " &7Награда: %reward%"));
+        setMsg("menu-quest-pvp-name", Arrays.asList("&5&l⚑ PvP мастер"));
+        setMsg("menu-quest-pvp-lore", Arrays.asList(
+                "",
+                " &7Победите &d%target% игроков&7 не из вашего клана.",
+                "",
+                " &7Прогресс: &d%progress%&8/&d%target%",
+                " %bar%",
+                "",
+                " &7Награда: %reward%"));
+        setMsg("menu-quest-grow-name", Arrays.asList("&a&l✦ Рост клана"));
+        setMsg("menu-quest-grow-lore", Arrays.asList(
+                "",
+                " &7Соберите &a%target% участников&7 в клане.",
+                "",
+                " &7Прогресс: &a%progress%&8/&a%target%",
+                " %bar%",
+                "",
+                " &7Награда: %reward%"));
+
         saveMessages();
     }
 }
